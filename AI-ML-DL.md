@@ -32,6 +32,8 @@ AI refers to the capability of machines to perform tasks that typically require 
 ---
 
 ## 2. **Machine Learning (ML)**
+![Machine-Learning](' 
+https://www.researchgate.net/profile/Patricia-Garcia-Canadilla/publication/338441432/figure/fig1/AS:858447562166274@1581681256270/Classification-of-ML-DL-algorithms-DL-is-a-subset-of-ML-based-on-ANN-and-can-be-applied.png')
 
 ### Definition:
 ML is a subset of AI that enables machines to improve at tasks with experience (data). It uses algorithms to analyze data, learn from it, and make decisions or predictions without being explicitly programmed for each specific task.
