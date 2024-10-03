@@ -283,3 +283,43 @@ The C++ Standard Library provides a rich set of **containers**, **algorithms**, 
 /)
 
 By mastering these C++ features, best practices, and libraries, you can build robust, efficient, and scalable applications across a variety of domains!
+# Strings Functions 
+Here's the updated table with code examples for each string function in C++:
+
+| **Function**           | **Description**                                                    | **Input Example**            | **Output Example**               | **Code Example**                                                     |
+|------------------------|--------------------------------------------------------------------|------------------------------|----------------------------------|----------------------------------------------------------------------|
+| `length()` / `size()`   | Returns the number of characters in the string                    | `"Hello"`                    | `5`                              | `string s = "Hello"; cout << s.length();`                            |
+| `empty()`              | Checks if the string is empty                                     | `""`                         | `true` (if empty)                | `string s = ""; cout << s.empty();`                                  |
+| `clear()`              | Clears the content of the string                                  | `"Hello"`                    | `""`                             | `string s = "Hello"; s.clear(); cout << s;`                          |
+| `append()` / `+=`      | Appends a string to the end of the string                         | `"Hello"`, `" World"`        | `"Hello World"`                  | `string s = "Hello"; s.append(" World"); cout << s;`                 |
+| `substr()`             | Extracts a substring from the string                              | `"Hello World"`, `0, 5`      | `"Hello"`                        | `string s = "Hello World"; cout << s.substr(0, 5);`                  |
+| `find()`               | Finds the first occurrence of a substring or character            | `"Hello World"`, `"World"`   | `6` (position of "World")        | `string s = "Hello World"; cout << s.find("World");`                 |
+| `rfind()`              | Finds the last occurrence of a substring or character             | `"Hello World"`, `"o"`       | `7`                              | `string s = "Hello World"; cout << s.rfind('o');`                    |
+| `replace()`            | Replaces a portion of the string with another string              | `"Hello World"`, `6, 5, "Everyone"` | `"Hello Everyone"`         | `string s = "Hello World"; s.replace(6, 5, "Everyone"); cout << s;`  |
+| `compare()`            | Compares two strings lexicographically                            | `"apple"`, `"banana"`        | `< 0` (apple < banana)           | `string s1 = "apple", s2 = "banana"; cout << s1.compare(s2);`        |
+| `c_str()`              | Returns a C-style null-terminated string (`const char*`)          | `"Hello"`                    | `"Hello\0"`                      | `string s = "Hello"; cout << s.c_str();`                             |
+| `at()`                 | Returns the character at a specific position (with bounds check)  | `"Hello"`, `1`               | `'e'`                            | `string s = "Hello"; cout << s.at(1);`                               |
+| `operator[]`           | Accesses the character at a specific index (no bounds check)      | `"Hello"`, `1`               | `'e'`                            | `string s = "Hello"; cout << s[1];`                                  |
+| `insert()`             | Inserts a string or character at a specified position             | `"Hello"`, `5, " World"`     | `"Hello World"`                  | `string s = "Hello"; s.insert(5, " World"); cout << s;`              |
+| `erase()`              | Removes a portion of the string                                   | `"Hello World"`, `5, 6`      | `"Hello"`                        | `string s = "Hello World"; s.erase(5, 6); cout << s;`                |
+| `push_back()`          | Appends a character to the end of the string                      | `"Hello"`, `'!'`             | `"Hello!"`                       | `string s = "Hello"; s.push_back('!'); cout << s;`                   |
+| `pop_back()`           | Removes the last character of the string                          | `"Hello!"`                   | `"Hello"`                        | `string s = "Hello!"; s.pop_back(); cout << s;`                      |
+| `begin()` / `end()`    | Returns an iterator to the beginning and end of the string        | `"Hello"`                    | Iterator over `"H", "e", "l",...`| `string s = "Hello"; for(auto it = s.begin(); it != s.end(); ++it) cout << *it;` |
+| `rbegin()` / `rend()`  | Returns a reverse iterator to the beginning and end of the string | `"Hello"`                    | Iterator over `"o", "l", "l",...`| `string s = "Hello"; for(auto it = s.rbegin(); it != s.rend(); ++it) cout << *it;`|
+| `resize()`             | Resizes the string to a given size                                | `"Hello"`, `8, 'x'`          | `"Helloxxx"`                     | `string s = "Hello"; s.resize(8, 'x'); cout << s;`                   |
+| `swap()`               | Swaps the contents of two strings                                 | `"Hello"`, `"World"`         | `"World"`, `"Hello"`             | `string s1 = "Hello", s2 = "World"; s1.swap(s2); cout << s1 << " " << s2;` |
+| `find_first_of()`      | Finds the first occurrence of any character from a given set      | `"Hello"`, `"aeiou"`         | `1` (first vowel is 'e')         | `string s = "Hello"; cout << s.find_first_of("aeiou");`              |
+| `find_last_of()`       | Finds the last occurrence of any character from a given set       | `"Hello World"`, `"aeiou"`   | `7` (last vowel is 'o')          | `string s = "Hello World"; cout << s.find_last_of("aeiou");`         |
+| `find_first_not_of()`  | Finds the first character not in the given set                    | `"Hello World"`, `"Helo "`   | `6` (first 'W')                  | `string s = "Hello World"; cout << s.find_first_not_of("Helo ");`    |
+| `find_last_not_of()`   | Finds the last character not in the given set                     | `"Hello World"`, `"dlroW "`  | `4` (last 'o')                   | `string s = "Hello World"; cout << s.find_last_not_of("dlroW ");`    |
+| `tolower()`            | Converts a character to lowercase (from `<cctype>`)               | `'H'`                        | `'h'`                            | `char c = 'H'; cout << (char)tolower(c);`                            |
+| `toupper()`            | Converts a character to uppercase (from `<cctype>`)               | `'h'`                        | `'H'`                            | `char c = 'h'; cout << (char)toupper(c);`                            |
+| `stoi()`               | Converts a string to an integer (`int`)                           | `"123"`                      | `123`                            | `string s = "123"; int num = stoi(s); cout << num;`                  |
+| `stol()`               | Converts a string to a `long`                                     | `"123456"`                   | `123456L`                        | `string s = "123456"; long num = stol(s); cout << num;`              |
+| `stoll()`              | Converts a string to a `long long`                                | `"1234567890123"`            | `1234567890123LL`                | `string s = "1234567890123"; long long num = stoll(s); cout << num;` |
+| `stof()`               | Converts a string to a `float`                                    | `"12.34"`                    | `12.34f`                         | `string s = "12.34"; float num = stof(s); cout << num;`              |
+| `stod()`               | Converts a string to a `double`                                   | `"123.456"`                  | `123.456`                        | `string s = "123.456"; double num = stod(s); cout << num;`           |
+| `stold()`              | Converts a string to a `long double`                              | `"123.4567890123"`           | `123.4567890123L`                | `string s = "123.4567890123"; long double num = stold(s); cout << num;`|
+| `to_string()`          | Converts a numeric value to a string                              | `123`                        | `"123"`                          | `int num = 123; string s = to_string(num); cout << s;`               |
+
+This table now includes code examples demonstrating how to use each function.
