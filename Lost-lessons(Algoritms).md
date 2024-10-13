@@ -88,12 +88,12 @@ int main() {
 }
 ```
 
-Each of these sorting algorithms works independently. You can choose which one you need depending on the application.
 
 
 
 
-Algorithm analysis techniques help evaluate the performance, efficiency, and behavior of algorithms. These techniques provide a mathematical framework to measure the time and space complexities of algorithms. Below are the major algorithm analysis techniques used in computer science:
+
+Algorithm analysis techniques help evaluate the performance, efficiency, and behavior of algorithms. These techniques provide a mathematical framework to measure the time and space complexities of algorithms. 
 
 ---
 
