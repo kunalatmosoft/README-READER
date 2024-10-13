@@ -1,3 +1,98 @@
+# ✌
+Here's the C code for Bubble Sort, Selection Sort, and Insertion Sort:
+
+### 1. **Bubble Sort**:
+```c
+#include <stdio.h>
+
+void bubble_sort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Swap arr[j] and arr[j + 1]
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    bubble_sort(arr, n);
+    printf("Sorted array: \n");
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    return 0;
+}
+```
+
+### 2. **Selection Sort**:
+```c
+#include <stdio.h>
+
+void selection_sort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        // Find the minimum element in unsorted array
+        int min_idx = i;
+        for (int j = i + 1; j < n; j++)
+            if (arr[j] < arr[min_idx])
+                min_idx = j;
+
+        // Swap the found minimum element with the first element
+        int temp = arr[min_idx];
+        arr[min_idx] = arr[i];
+        arr[i] = temp;
+    }
+}
+
+int main() {
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    selection_sort(arr, n);
+    printf("Sorted array: \n");
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    return 0;
+}
+```
+
+### 3. **Insertion Sort**:
+```c
+#include <stdio.h>
+
+void insertion_sort(int arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+
+        // Move elements of arr[0..i-1], that are greater than key, to one position ahead
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+int main() {
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    insertion_sort(arr, n);
+    printf("Sorted array: \n");
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    return 0;
+}
+```
+
+Each of these sorting algorithms works independently. You can choose which one you need depending on the application.
+
+
+
+
 Algorithm analysis techniques help evaluate the performance, efficiency, and behavior of algorithms. These techniques provide a mathematical framework to measure the time and space complexities of algorithms. Below are the major algorithm analysis techniques used in computer science:
 
 ---
