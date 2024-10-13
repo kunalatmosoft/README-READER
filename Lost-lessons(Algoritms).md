@@ -1,3 +1,190 @@
+Algorithm analysis techniques help evaluate the performance, efficiency, and behavior of algorithms. These techniques provide a mathematical framework to measure the time and space complexities of algorithms. Below are the major algorithm analysis techniques used in computer science:
+
+---
+
+### **1. Worst-Case Analysis**
+- **Definition:**  
+  This technique evaluates the maximum time or space an algorithm takes across all possible inputs of a given size.
+  
+- **When to use:**  
+  When you want to guarantee that your algorithm will not take more than a certain amount of time or space, regardless of the input.
+  
+- **Example:**  
+  In **Quick Sort**, the worst-case time complexity is O(n²), which happens when the pivot selection is poor (e.g., always picking the smallest or largest element).
+
+---
+
+### **2. Best-Case Analysis**
+- **Definition:**  
+  This measures the least amount of time or space an algorithm will use for the most favorable input of a given size.
+  
+- **When to use:**  
+  To understand how fast the algorithm could perform in an ideal scenario.
+  
+- **Example:**  
+  In **Insertion Sort**, the best-case time complexity is O(n), which occurs when the array is already sorted.
+
+---
+
+### **3. Average-Case Analysis**
+- **Definition:**  
+  This evaluates the expected time or space an algorithm takes on average for all possible inputs of a given size, assuming a probabilistic distribution of inputs.
+  
+- **When to use:**  
+  When you want a realistic expectation of the algorithm’s performance under typical conditions.
+  
+- **Example:**  
+  In **Quick Sort**, the average-case time complexity is O(n log n), which assumes random pivot selection leads to balanced partitions most of the time.
+
+---
+
+### **4. Amortized Analysis**
+- **Definition:**  
+  Amortized analysis evaluates the **average cost** of an operation over a sequence of operations, even if individual operations might be costly.
+  
+- **When to use:**  
+  When analyzing data structures or algorithms where occasional expensive operations are compensated by cheaper ones over time.
+  
+- **Example:**  
+  In a **dynamic array**, appending an element might require occasional resizing, but the overall cost of inserting n elements is O(n), making each insertion amortized O(1).
+
+---
+
+### **5. Asymptotic Analysis**
+- **Definition:**  
+  This technique analyzes the behavior of algorithms as the input size approaches infinity (n → ∞), focusing on the growth rate of time or space complexity.
+  
+- **When to use:**  
+  To study the scalability of an algorithm. Asymptotic notation (Big O, Big Theta, Big Omega) is used to express this.
+  
+- **Example:**  
+  An algorithm with time complexity O(n²) grows quadratically as the input size increases, meaning its performance degrades much faster compared to O(n log n).
+
+---
+
+### **6. Probabilistic Analysis**
+- **Definition:**  
+  This analysis involves the use of probability and random variables to analyze algorithms that rely on random input or random choices made during execution.
+  
+- **When to use:**  
+  For randomized algorithms or when the input follows a probabilistic distribution.
+  
+- **Example:**  
+  In **Randomized Quick Sort**, the pivot is selected randomly, and the probabilistic analysis shows that the average-case time complexity is O(n log n).
+
+---
+
+### **7. Online Analysis**
+- **Definition:**  
+  Online analysis evaluates the performance of algorithms that process input piece by piece, without knowing the entire input in advance.
+  
+- **When to use:**  
+  For problems where data arrives in real-time and decisions must be made without knowledge of future inputs.
+  
+- **Example:**  
+  In **online scheduling algorithms**, jobs arrive over time, and scheduling decisions must be made immediately without seeing future jobs.
+
+---
+
+### **8. Empirical Analysis**
+- **Definition:**  
+  This technique involves running an algorithm on sample inputs and measuring its performance in practice, rather than just theoretically.
+  
+- **When to use:**  
+  When actual performance and practical considerations (like hardware, system architecture, and dataset characteristics) need to be considered.
+  
+- **Example:**  
+  Testing **sorting algorithms** on real-world datasets (e.g., Tim Sort performs better on real-world data due to its adaptive nature).
+
+---
+
+### **9. Recursive Analysis**
+- **Definition:**  
+  This technique is used to analyze algorithms that solve problems recursively. The analysis is often done using **recurrence relations** that describe the algorithm’s time complexity.
+  
+- **When to use:**  
+  When analyzing recursive algorithms, especially divide-and-conquer algorithms.
+  
+- **Example:**  
+  The time complexity of **Merge Sort** can be expressed as the recurrence relation T(n) = 2T(n/2) + O(n), which solves to O(n log n).
+
+---
+
+### **10. Space Complexity Analysis**
+- **Definition:**  
+  This measures the amount of memory an algorithm needs to run, apart from the input data. It evaluates both the stack/heap memory used and temporary storage allocated.
+  
+- **When to use:**  
+  When memory is a constraint or when analyzing algorithms with high memory usage.
+  
+- **Example:**  
+  **Merge Sort** requires O(n) extra space for the auxiliary arrays used during merging, while **Heap Sort** is in-place, requiring only O(1) extra space.
+
+---
+
+### **11. Competitive Analysis**
+- **Definition:**  
+  This analysis compares the performance of an online algorithm to an optimal offline algorithm that has complete information about the entire input sequence in advance.
+  
+- **When to use:**  
+  In online algorithms, where decisions are made without knowing the future.
+  
+- **Example:**  
+  In the **ski-rental problem**, competitive analysis helps determine when to buy skis rather than renting, comparing the online decision to the optimal offline solution.
+
+---
+
+### **12. Approximation Analysis**
+- **Definition:**  
+  This is used to analyze the performance of **approximation algorithms** for NP-hard problems, measuring how close the solution is to the optimal one.
+  
+- **When to use:**  
+  When analyzing algorithms that provide near-optimal solutions in polynomial time for problems where exact solutions are computationally expensive.
+  
+- **Example:**  
+  For the **Traveling Salesman Problem (TSP)**, approximation algorithms aim to find a tour whose cost is within a known factor (e.g., 1.5 times) of the optimal tour.
+
+---
+
+### **13. Back-of-the-Envelope Analysis**
+- **Definition:**  
+  This informal technique involves rough calculations to estimate the time and space complexity of an algorithm without detailed analysis.
+  
+- **When to use:**  
+  In early stages of algorithm design to get a quick idea of performance.
+  
+- **Example:**  
+  Estimating that a sorting algorithm takes about O(n log n) time based on the number of comparisons required without performing a full derivation.
+
+---
+
+### **14. Parameterized Complexity Analysis**
+- **Definition:**  
+  This analysis focuses on identifying specific parameters of the input (such as the size of a particular subset) that influence the complexity, rather than just the overall input size.
+  
+- **When to use:**  
+  When certain characteristics of the input can dramatically affect the algorithm’s performance.
+  
+- **Example:**  
+  In the **k-clique problem**, the time complexity is parameterized by k, with an algorithm's complexity being exponential in k but polynomial in the overall input size.
+
+---
+
+### **15. Smoothed Analysis**
+- **Definition:**  
+  This technique combines worst-case and average-case analysis to study how the performance of an algorithm changes when small random noise is added to worst-case inputs.
+  
+- **When to use:**  
+  To understand the practical performance of algorithms that have bad worst-case performance but perform well in practice.
+  
+- **Example:**  
+  In **Simplex Algorithm** for linear programming, the worst-case time complexity is exponential, but smoothed analysis shows that the algorithm performs well on most inputs with small random perturbations.
+
+---
+
+These techniques provide a comprehensive framework for analyzing algorithms in various contexts, ensuring that both theoretical and practical aspects of performance are understood.
+
+
 Here are *unique and lesser-known terms* related to *algorithms*:
 
 ### 1. *Boyer-Moore Algorithm*
