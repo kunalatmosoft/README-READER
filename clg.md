@@ -224,3 +224,179 @@ Here is a collection of algorithms for linked list operations written in the for
 ---
 
 These algorithms cover the most common linked list operations, each presented with a clear structure and an appropriate overflow or underflow condition where necessary.
+
+
+
+Here are the basic operations for a **circular linked list** and their respective algorithms:
+
+### 1. **Insertion at the Beginning**
+
+1. **Allocate memory for a new node:**
+   - `NEW-NODE = malloc(sizeof(Node))`.
+
+2. **Check for memory overflow:**
+   - If `NEW-NODE == NULL`, print `"Overflow"` and exit.
+
+3. **Set data for the new node:**
+   - `NEW-NODE->DATA = VAL`.
+
+4. **If the list is empty (HEAD is NULL):**
+   - `NEW-NODE->NEXT = NEW-NODE` (circular link).
+   - `HEAD = NEW-NODE`.
+
+5. **If the list is not empty:**
+   - Traverse to the last node:  
+     - Set `TEMP = HEAD`.
+     - While `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - Link the new node to the head:  
+     - `NEW-NODE->NEXT = HEAD`.
+     - `TEMP->NEXT = NEW-NODE`.
+   - Update head:  
+     - `HEAD = NEW-NODE`.
+
+6. **Exit the algorithm.**
+
+---
+
+### 2. **Insertion at the End**
+
+1. **Allocate memory for a new node:**
+   - `NEW-NODE = malloc(sizeof(Node))`.
+
+2. **Check for memory overflow:**
+   - If `NEW-NODE == NULL`, print `"Overflow"` and exit.
+
+3. **Set data for the new node:**
+   - `NEW-NODE->DATA = VAL`.
+
+4. **If the list is empty (HEAD is NULL):**
+   - `NEW-NODE->NEXT = NEW-NODE`.
+   - `HEAD = NEW-NODE`.
+
+5. **If the list is not empty:**
+   - Traverse to the last node:  
+     - Set `TEMP = HEAD`.
+     - While `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - Set `TEMP->NEXT = NEW-NODE`.
+   - Set `NEW-NODE->NEXT = HEAD`.
+
+6. **Exit the algorithm.**
+
+---
+
+### 3. **Insertion After a Given Node**
+
+1. **Allocate memory for a new node:**
+   - `NEW-NODE = malloc(sizeof(Node))`.
+
+2. **Check for memory overflow:**
+   - If `NEW-NODE == NULL`, print `"Overflow"` and exit.
+
+3. **Set data for the new node:**
+   - `NEW-NODE->DATA = VAL`.
+
+4. **Find the given node (after which to insert):**
+   - Set `TEMP = HEAD`.
+   - Traverse until you find the desired node (`AFTER-NODE`) or reach the end of the list:
+     - While `TEMP->DATA != AFTER-VAL` and `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+
+5. **Insert the new node after the given node:**
+   - Set `NEW-NODE->NEXT = TEMP->NEXT`.
+   - Set `TEMP->NEXT = NEW-NODE`.
+
+6. **Exit the algorithm.**
+
+---
+
+### 4. **Deletion from the Beginning**
+
+1. **Check if the list is empty:**
+   - If `HEAD == NULL`, print `"Underflow"` and exit.
+
+2. **If there's only one node in the list:**
+   - If `HEAD->NEXT == HEAD`, free the `HEAD` and set `HEAD = NULL`.
+
+3. **If there are multiple nodes:**
+   - Set `TEMP = HEAD`.
+   - Traverse to the last node:  
+     - While `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - Set `TEMP->NEXT = HEAD->NEXT`.
+   - Free the current `HEAD`.
+   - Set `HEAD = TEMP->NEXT`.
+
+4. **Exit the algorithm.**
+
+---
+
+### 5. **Deletion from the End**
+
+1. **Check if the list is empty:**
+   - If `HEAD == NULL`, print `"Underflow"` and exit.
+
+2. **If there's only one node in the list:**
+   - If `HEAD->NEXT == HEAD`, free `HEAD` and set `HEAD = NULL`.
+
+3. **If there are multiple nodes:**
+   - Set `TEMP = HEAD`.
+   - Traverse to the second-last node:
+     - While `TEMP->NEXT->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - Free `TEMP->NEXT`.
+   - Set `TEMP->NEXT = HEAD`.
+
+4. **Exit the algorithm.**
+
+---
+
+### 6. **Deletion of a Given Node**
+
+1. **Check if the list is empty:**
+   - If `HEAD == NULL`, print `"Underflow"` and exit.
+
+2. **If the node to be deleted is the first node:**
+   - Follow the steps for **Deletion from the Beginning**.
+
+3. **If the node to be deleted is not the first:**
+   - Set `TEMP = HEAD`.
+   - Traverse the list to find the node just before the one to delete:  
+     - While `TEMP->NEXT->DATA != VAL` and `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - If node to delete is found:  
+     - Set `TO-DELETE = TEMP->NEXT`.
+     - Set `TEMP->NEXT = TO-DELETE->NEXT`.
+     - Free `TO-DELETE`.
+
+4. **Exit the algorithm.**
+
+---
+
+### 7. **Traversal**
+
+1. **Check if the list is empty:**
+   - If `HEAD == NULL`, print `"Empty list"` and exit.
+
+2. **If the list is not empty:**
+   - Set `TEMP = HEAD`.
+   - While `TEMP->NEXT != HEAD`, print `TEMP->DATA` and set `TEMP = TEMP->NEXT`.
+   - Print the data of the last node:  
+     - Print `TEMP->DATA`.
+
+3. **Exit the algorithm.**
+
+---
+
+### 8. **Search for a Value**
+
+1. **Check if the list is empty:**
+   - If `HEAD == NULL`, print `"Empty list"` and exit.
+
+2. **If the list is not empty:**
+   - Set `TEMP = HEAD`.
+   - Traverse the list to find the value:  
+     - While `TEMP->DATA != VAL` and `TEMP->NEXT != HEAD`, set `TEMP = TEMP->NEXT`.
+   - If `TEMP->DATA == VAL`, print `"Value found"`.
+   - Otherwise, print `"Value not found"`.
+
+3. **Exit the algorithm.**
+
+---
+
+These algorithms should cover most operations needed for a **circular linked list**. Let me know if you need any additional functionality!
