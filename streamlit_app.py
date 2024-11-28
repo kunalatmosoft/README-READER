@@ -1,72 +1,101 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # App title
-st.title("📈 Enhanced Real-time Stock Price Dashboard")
+st.title("📊 Advanced Stock Price Dashboard")
 
 # Sidebar for user input
 st.sidebar.header("User Input")
-ticker = st.sidebar.text_input("Enter Stock Ticker Symbol (e.g., AAPL, TSLA)", "AAPL")
+stock_options = {
+    "Apple (AAPL)": "AAPL",
+    "Microsoft (MSFT)": "MSFT",
+    "Tesla (TSLA)": "TSLA",
+    "Amazon (AMZN)": "AMZN",
+    "Google (GOOGL)": "GOOGL",
+    "Netflix (NFLX)": "NFLX",
+    "NVIDIA (NVDA)": "NVDA",
+}
+selected_stocks = st.sidebar.multiselect(
+    "Select Stock Ticker(s):",
+    options=stock_options.keys(),
+    default=["Apple (AAPL)"],
+)
 start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2022-01-01"))
 end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
+show_candlestick = st.sidebar.checkbox("Show Candlestick Chart", value=True)
 
 # Fetch stock data
-if ticker:
-    st.subheader(f"Stock Data for {ticker}")
+if selected_stocks:
+    st.subheader("📈 Stock Data Overview")
     try:
-        stock_data = yf.download(ticker, start=start_date, end=end_date)
+        for stock_name in selected_stocks:
+            ticker = stock_options[stock_name]
+            st.markdown(f"### {stock_name} ({ticker})")
+            stock_data = yf.download(ticker, start=start_date, end=end_date)
 
-        if not stock_data.empty:
-            # Display raw data
-            st.write("📋 Data Overview:")
-            st.dataframe(stock_data.tail())
+            if not stock_data.empty:
+                # Display data
+                st.write("📋 Data Snapshot:")
+                st.dataframe(stock_data.tail())
 
-            # Moving Averages
-            st.sidebar.subheader("Moving Averages")
-            ma_periods = st.sidebar.multiselect(
-                "Select Moving Average Periods (days):",
-                options=[10, 20, 50, 100],
-                default=[10, 50],
-            )
+                # Candlestick Chart
+                if show_candlestick:
+                    st.write("📊 Candlestick Chart:")
+                    fig = go.Figure(data=[
+                        go.Candlestick(
+                            x=stock_data.index,
+                            open=stock_data['Open'],
+                            high=stock_data['High'],
+                            low=stock_data['Low'],
+                            close=stock_data['Close'],
+                            name="Candlestick",
+                        )
+                    ])
+                    fig.update_layout(
+                        title=f"{stock_name} Candlestick Chart",
+                        xaxis_title="Date",
+                        yaxis_title="Price",
+                        template="plotly_dark",
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
 
-            # Plot: Closing Price with Moving Averages
-            st.write("📊 Price Chart with Moving Averages:")
-            plt.figure(figsize=(10, 6))
-            plt.plot(stock_data["Close"], label="Closing Price")
-            for ma in ma_periods:
-                stock_data[f"MA_{ma}"] = stock_data["Close"].rolling(window=ma).mean()
-                plt.plot(stock_data[f"MA_{ma}"], label=f"MA {ma} days")
-            plt.legend()
-            plt.title(f"{ticker} Closing Prices and Moving Averages")
-            plt.xlabel("Date")
-            plt.ylabel("Price")
-            st.pyplot(plt)
+                # Closing Price Chart
+                st.write("📉 Closing Price Chart:")
+                st.line_chart(stock_data["Close"])
 
-            # Volume Chart
-            st.write("📈 Volume Chart:")
-            st.bar_chart(stock_data["Volume"])
+                # Technical Indicator: Moving Average
+                st.sidebar.subheader(f"{stock_name}: Moving Average")
+                ma_periods = st.sidebar.multiselect(
+                    f"Select Moving Average Periods (days) for {ticker}:",
+                    options=[10, 20, 50, 100],
+                    default=[20],
+                )
+                st.write("📈 Price with Moving Averages:")
+                stock_data_with_ma = stock_data.copy()
+                for ma in ma_periods:
+                    stock_data_with_ma[f"MA_{ma}"] = stock_data["Close"].rolling(ma).mean()
+                st.line_chart(stock_data_with_ma[["Close"] + [f"MA_{ma}" for ma in ma_periods]])
 
-            # Download CSV
-            st.write("💾 Download Data:")
-            csv = stock_data.to_csv().encode("utf-8")
-            st.download_button(
-                label="Download as CSV",
-                data=csv,
-                file_name=f"{ticker}_data.csv",
-                mime="text/csv",
-            )
+                # Volume Chart
+                st.write("📊 Volume Chart:")
+                st.bar_chart(stock_data["Volume"])
 
-            # Statistical Summary
-            st.write("📊 Statistical Summary:")
-            st.write(stock_data.describe())
+                # Download CSV
+                st.write("💾 Download Data:")
+                csv = stock_data.to_csv().encode("utf-8")
+                st.download_button(
+                    label=f"Download {ticker} Data as CSV",
+                    data=csv,
+                    file_name=f"{ticker}_data.csv",
+                    mime="text/csv",
+                )
 
-        else:
-            st.error("No data found for the provided ticker and date range.")
+            else:
+                st.error(f"No data found for {ticker} in the specified date range.")
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
 else:
-    st.info("Enter a valid stock ticker to begin.")
-
+    st.info("Select at least one stock to begin.")
