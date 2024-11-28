@@ -111,4 +111,3 @@ if selected_stocks:
         st.error(f"An error occurred: {e}")
 else:
     st.info("Select at least one stock to begin.")
-
