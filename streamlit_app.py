@@ -26,7 +26,7 @@ start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2022-01-01"))
 end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
 show_candlestick = st.sidebar.checkbox("Show Candlestick Chart", value=True)
 
-# Fetch stock data
+# Fetch and display stock data
 if selected_stocks:
     st.subheader("📈 Stock Data Overview")
     try:
@@ -36,7 +36,7 @@ if selected_stocks:
             stock_data = yf.download(ticker, start=start_date, end=end_date)
 
             if not stock_data.empty:
-                # Display data
+                # Display data snapshot
                 st.write("📋 Data Snapshot:")
                 st.dataframe(stock_data.tail())
 
@@ -72,11 +72,23 @@ if selected_stocks:
                     options=[10, 20, 50, 100],
                     default=[20],
                 )
-                st.write("📈 Price with Moving Averages:")
-                stock_data_with_ma = stock_data.copy()
-                for ma in ma_periods:
-                    stock_data_with_ma[f"MA_{ma}"] = stock_data["Close"].rolling(ma).mean()
-                st.line_chart(stock_data_with_ma[["Close"] + [f"MA_{ma}" for ma in ma_periods]])
+                if ma_periods:
+                    st.write("📈 Price with Moving Averages:")
+                    stock_data_with_ma = stock_data.copy()
+
+                    # Calculate moving averages and validate columns
+                    ma_columns = []
+                    for ma in ma_periods:
+                        col_name = f"MA_{ma}"
+                        stock_data_with_ma[col_name] = stock_data["Close"].rolling(ma).mean()
+                        if col_name in stock_data_with_ma.columns:
+                            ma_columns.append(col_name)
+
+                    # Plot valid columns
+                    if ma_columns:
+                        st.line_chart(stock_data_with_ma[["Close"] + ma_columns])
+                    else:
+                        st.warning("No valid moving average data to display. Ensure your data range is sufficient for the selected MA periods.")
 
                 # Volume Chart
                 st.write("📊 Volume Chart:")
@@ -99,3 +111,4 @@ if selected_stocks:
         st.error(f"An error occurred: {e}")
 else:
     st.info("Select at least one stock to begin.")
+
