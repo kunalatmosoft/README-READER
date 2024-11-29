@@ -1,101 +1,109 @@
 import streamlit as st
-import seaborn as sns
+import requests
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # Set the page configuration
 st.set_page_config(
-    page_title="Streamlit Analytics Platform",
+    page_title="GitHub ID Improvement Platform",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Title and Description
-st.title("Streamlit Analytics Platform")
+st.title("GitHub ID Improvement Platform")
 st.markdown("""
-This is an interactive analytical platform using built-in datasets from the **Seaborn** library.
-Explore datasets, visualize trends, and gain insights in one place!
+Enter your GitHub username, and this platform will provide actionable recommendations 
+to improve your profile, such as enhancing repositories, contributing to open-source projects, 
+and improving your overall profile visibility.
 """)
 
-# Sidebar: Dataset selection
-datasets = {
-    "Iris": sns.load_dataset("iris"),
-    "Titanic": sns.load_dataset("titanic"),
-    "Tips": sns.load_dataset("tips"),
-    "Penguins": sns.load_dataset("penguins"),
-}
+# Input: GitHub Username
+github_username = st.text_input("Enter Your GitHub Username")
 
-selected_dataset_name = st.sidebar.selectbox("Select a Dataset", list(datasets.keys()))
-data = datasets[selected_dataset_name]
+if github_username:
+    # Fetch GitHub User Data
+    user_url = f"https://api.github.com/users/{github_username}"
+    repos_url = f"https://api.github.com/users/{github_username}/repos"
 
-# Display dataset details
-st.subheader(f"Dataset: {selected_dataset_name}")
-st.write("### Data Preview", data.head())
-st.write("### Summary Statistics", data.describe(include='all'))
+    user_response = requests.get(user_url)
+    repos_response = requests.get(repos_url)
 
-# Sidebar: Visualization Options
-st.sidebar.markdown("### Visualization Settings")
-plot_type = st.sidebar.selectbox(
-    "Select Plot Type",
-    ["Scatter Plot", "Histogram", "Box Plot", "Bar Plot", "Line Plot", "Pair Plot"]
-)
+    if user_response.status_code == 200 and repos_response.status_code == 200:
+        user_data = user_response.json()
+        repos_data = repos_response.json()
 
-x_axis = st.sidebar.selectbox("X-Axis", options=data.columns)
-y_axis = st.sidebar.selectbox("Y-Axis", options=data.columns)
-hue = st.sidebar.selectbox("Hue (Optional)", options=[None] + list(data.columns))
+        # Friendly Introduction
+        st.subheader(f"Hello, {user_data.get('name', user_data['login'])}! 👋")
+        st.markdown("It's great to have you here. Let's explore ways to enhance your GitHub presence!")
 
-# Sidebar: Additional customization options
-st.sidebar.markdown("### Advanced Customization")
-fig_size = st.sidebar.slider("Figure Size", 5, 15, (10, 6))
-color_palette = st.sidebar.selectbox("Color Palette", options=["deep", "muted", "bright", "dark", "colorblind"])
+        # Display Basic Profile Information
+        st.image(user_data['avatar_url'], width=150)
+        st.markdown(f"**Name:** {user_data.get('name', 'N/A')}")
+        st.markdown(f"**Bio:** {user_data.get('bio', 'N/A')}")
+        st.markdown(f"**Public Repos:** {user_data['public_repos']}")
+        st.markdown(f"**Followers:** {user_data['followers']}")
+        st.markdown(f"**Following:** {user_data['following']}")
+        st.markdown(f"[View Profile]({user_data['html_url']})")
 
-# Visualization
-st.subheader("Visualization")
-fig, ax = plt.subplots(figsize=fig_size)
+        # Recommendations Section
+        st.subheader("Personalized Recommendations to Improve Your GitHub Profile")
 
-if plot_type == "Scatter Plot":
-    sns.scatterplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
-elif plot_type == "Histogram":
-    sns.histplot(data=data, x=x_axis, hue=hue, kde=True, palette=color_palette, ax=ax)
-elif plot_type == "Box Plot":
-    sns.boxplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
-elif plot_type == "Bar Plot":
-    sns.barplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
-elif plot_type == "Line Plot":
-    sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
-elif plot_type == "Pair Plot":
-    st.subheader("Pair Plot")
-    pair_plot = sns.pairplot(data, hue=hue, palette=color_palette)
-    st.pyplot(pair_plot)
-else:
-    st.error("Select a valid plot type.")
+        recommendations = []
 
-st.pyplot(fig)
+        # Check for bio
+        if not user_data.get('bio'):
+            recommendations.append("Add a bio to your profile to make it more engaging.")
 
-# Advanced Analysis: Correlation Heatmap
-if st.checkbox("Show Correlation Heatmap"):
-    st.subheader("Correlation Heatmap")
-    corr = data.corr()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
-    st.pyplot(fig)
+        # Check for profile picture
+        if user_data['avatar_url'].endswith("no_avatar.png"):
+            recommendations.append("Upload a profile picture to make your account more personal.")
 
-# Advanced Analysis: Data Filtering
-if st.checkbox("Enable Data Filtering"):
-    st.sidebar.markdown("### Filter Options")
-    filter_column = st.sidebar.selectbox("Filter Column", options=data.columns)
-    unique_values = data[filter_column].dropna().unique()
-    selected_values = st.sidebar.multiselect("Select Values", unique_values, default=unique_values[:1])
-    filtered_data = data[data[filter_column].isin(selected_values)]
-    st.write("### Filtered Data Preview", filtered_data.head())
+        # Check for repository activity
+        if len(repos_data) == 0:
+            recommendations.append("Start creating repositories to showcase your projects.")
+        else:
+            active_repos = [repo for repo in repos_data if repo['pushed_at']]
+            if len(active_repos) == 0:
+                recommendations.append("Update your repositories with recent activity.")
 
-# Advanced Analysis: Statistical Summary
-if st.checkbox("Show Statistical Summary"):
-    st.subheader("Statistical Summary")
-    st.write(data.describe())
+        # Check for followers
+        if user_data['followers'] < 10:
+            recommendations.append("Engage with the community to gain more followers.")
+
+        # Provide generic recommendations
+        recommendations.append("Contribute to open-source projects to gain visibility.")
+        recommendations.append("Add a README.md file to your repositories to describe your projects.")
+        recommendations.append("Pin your best repositories to your profile to highlight your skills.")
+        recommendations.append("Participate in GitHub discussions and forums to enhance community engagement.")
+        recommendations.append("Add topics to your repositories to improve discoverability.")
+        recommendations.append("Use GitHub Actions to automate workflows and showcase DevOps skills.")
+        recommendations.append("Create repositories for personal projects to demonstrate innovation.")
+        recommendations.append("Write detailed commit messages to make your contributions more professional.")
+        recommendations.append("Collaborate on repositories by participating in pull requests to show teamwork skills.")
+        recommendations.append("Showcase data visualizations, APIs, or other tools in your projects to demonstrate expertise.")
+        recommendations.append("Participate in Hacktoberfest or similar events to grow your network.")
+
+        st.markdown("Here are some tips just for you:")
+        for rec in recommendations:
+            st.markdown(f"- {rec}")
+
+        # Repository Analysis
+        st.subheader("Repository Analysis")
+        repo_df = pd.DataFrame(repos_data, columns=['name', 'stargazers_count', 'forks_count', 'html_url'])
+        if not repo_df.empty:
+            repo_df = repo_df.rename(columns={
+                'name': 'Repository Name',
+                'stargazers_count': 'Stars',
+                'forks_count': 'Forks',
+                'html_url': 'URL'
+            })
+            repo_df = repo_df.sort_values(by='Stars', ascending=False)
+            st.dataframe(repo_df[['Repository Name', 'Stars', 'Forks']])
+    else:
+        st.error("Unable to fetch data. Please check the username and try again.")
 
 # Footer
 st.markdown("""
 ---
-Built with [Streamlit](https://streamlit.io/) and [Seaborn](https://seaborn.pydata.org/).
+Built with [Streamlit](https://streamlit.io/) and the [GitHub API](https://docs.github.com/en/rest).
 """)
