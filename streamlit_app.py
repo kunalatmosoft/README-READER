@@ -37,25 +37,38 @@ st.write("### Summary Statistics", data.describe(include='all'))
 st.sidebar.markdown("### Visualization Settings")
 plot_type = st.sidebar.selectbox(
     "Select Plot Type",
-    ["Scatter Plot", "Histogram", "Box Plot", "Bar Plot"]
+    ["Scatter Plot", "Histogram", "Box Plot", "Bar Plot", "Line Plot", "Pair Plot"]
 )
 
 x_axis = st.sidebar.selectbox("X-Axis", options=data.columns)
 y_axis = st.sidebar.selectbox("Y-Axis", options=data.columns)
 hue = st.sidebar.selectbox("Hue (Optional)", options=[None] + list(data.columns))
 
+# Sidebar: Additional customization options
+st.sidebar.markdown("### Advanced Customization")
+fig_size = st.sidebar.slider("Figure Size", 5, 15, (10, 6))
+color_palette = st.sidebar.selectbox("Color Palette", options=["deep", "muted", "bright", "dark", "colorblind"])
+
 # Visualization
 st.subheader("Visualization")
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=fig_size)
 
 if plot_type == "Scatter Plot":
-    sns.scatterplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
+    sns.scatterplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
 elif plot_type == "Histogram":
-    sns.histplot(data=data, x=x_axis, hue=hue, kde=True, ax=ax)
+    sns.histplot(data=data, x=x_axis, hue=hue, kde=True, palette=color_palette, ax=ax)
 elif plot_type == "Box Plot":
-    sns.boxplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
+    sns.boxplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
 elif plot_type == "Bar Plot":
-    sns.barplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
+    sns.barplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
+elif plot_type == "Line Plot":
+    sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, palette=color_palette, ax=ax)
+elif plot_type == "Pair Plot":
+    st.subheader("Pair Plot")
+    pair_plot = sns.pairplot(data, hue=hue, palette=color_palette)
+    st.pyplot(pair_plot)
+else:
+    st.error("Select a valid plot type.")
 
 st.pyplot(fig)
 
@@ -66,6 +79,20 @@ if st.checkbox("Show Correlation Heatmap"):
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
     st.pyplot(fig)
+
+# Advanced Analysis: Data Filtering
+if st.checkbox("Enable Data Filtering"):
+    st.sidebar.markdown("### Filter Options")
+    filter_column = st.sidebar.selectbox("Filter Column", options=data.columns)
+    unique_values = data[filter_column].dropna().unique()
+    selected_values = st.sidebar.multiselect("Select Values", unique_values, default=unique_values[:1])
+    filtered_data = data[data[filter_column].isin(selected_values)]
+    st.write("### Filtered Data Preview", filtered_data.head())
+
+# Advanced Analysis: Statistical Summary
+if st.checkbox("Show Statistical Summary"):
+    st.subheader("Statistical Summary")
+    st.write(data.describe())
 
 # Footer
 st.markdown("""
