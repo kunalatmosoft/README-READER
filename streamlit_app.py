@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Set the page configuration
 st.set_page_config(
@@ -14,8 +15,7 @@ st.set_page_config(
 st.title("🌟 Advanced GitHub ID Improvement Platform")
 st.markdown("""
 Welcome to the next level of GitHub analytics! 🎉  
-We'll evaluate your GitHub profile, provide actionable recommendations, and offer advanced visualizations 
-to help you stand out as a developer. Let's get started! 💻
+This platform provides advanced visualizations, profile analysis, and actionable recommendations to enhance your GitHub presence.  
 """)
 
 # Input: GitHub Username
@@ -35,10 +35,7 @@ if github_username:
 
         # Friendly Introduction
         st.subheader(f"👋 Hi, {user_data.get('name', user_data['login'])}!")
-        st.markdown("""
-        Here's a personalized analysis of your GitHub profile.  
-        Let's explore opportunities to shine brighter in the GitHub community! 🚀
-        """)
+        st.markdown("Here's a personalized analysis of your GitHub profile. Let’s get started! 🚀")
 
         # Display Basic Profile Information
         st.image(user_data['avatar_url'], width=150)
@@ -62,75 +59,106 @@ if github_username:
             score += 15
         st.metric("Your GitHub Profile Score", f"{score}/100")
 
-        # Recommendations Section
-        st.subheader("✨ Personalized Recommendations")
-        recommendations = []
-
-        # Check for bio
-        if not user_data.get('bio'):
-            recommendations.append("📝 Add a bio to your profile to make it more engaging and informative.")
-        
-        # Check for repository activity
-        if len(repos_data) == 0:
-            recommendations.append("📂 Start creating repositories to showcase your projects and skills.")
-        else:
-            active_repos = [repo for repo in repos_data if repo['pushed_at']]
-            if len(active_repos) == 0:
-                recommendations.append("⚙️ Update your repositories with recent activity to show you’re active.")
-
-        # Check for followers
-        if user_data['followers'] < 10:
-            recommendations.append("🤝 Engage with the community to gain more followers. Try following people and contributing to discussions!")
-
-        # Additional recommendations
-        recommendations.append("🌟 Pin your best repositories to highlight your skills.")
-        recommendations.append("📄 Add a README.md file to your repositories to describe your projects.")
-        recommendations.append("🎨 Use topics and tags to improve the discoverability of your repositories.")
-        recommendations.append("💡 Contribute to open-source projects to gain visibility and experience.")
-        recommendations.append("⚡ Leverage GitHub Actions to showcase automation and DevOps skills.")
-
-        for rec in recommendations:
-            st.markdown(f"- {rec}")
-
         # Repository Insights
         st.subheader("🔍 Repository Insights")
         if repos_data:
             repo_df = pd.DataFrame(repos_data)
-            most_starred = repo_df.loc[repo_df['stargazers_count'].idxmax()]
-            st.markdown(f"🌟 Your most popular repository is **{most_starred['name']}** with {most_starred['stargazers_count']} stars!")
-            st.markdown(f"[🔗 View Repository]({most_starred['html_url']})")
+            repo_df = repo_df[['name', 'stargazers_count', 'forks_count', 'pushed_at', 'html_url']]
+            repo_df['pushed_at'] = pd.to_datetime(repo_df['pushed_at'])
 
-        # Language Distribution Chart
+            # Graph Options for Stars and Forks
+            graph_option = st.selectbox(
+                "Select Graph Type for Repository Insights:",
+                ["Bar Chart", "Pie Chart"]
+            )
+            if graph_option == "Bar Chart":
+                fig, ax = plt.subplots()
+                sns.barplot(
+                    data=repo_df.sort_values('stargazers_count', ascending=False),
+                    x='stargazers_count',
+                    y='name',
+                    palette='viridis',
+                    ax=ax
+                )
+                ax.set_title("Repositories by Stars")
+                ax.set_xlabel("Stars")
+                ax.set_ylabel("Repository Name")
+                st.pyplot(fig)
+            elif graph_option == "Pie Chart":
+                pie_data = repo_df[['name', 'stargazers_count']].set_index('name')
+                pie_data = pie_data[pie_data['stargazers_count'] > 0]
+                fig, ax = plt.subplots()
+                ax.pie(
+                    pie_data['stargazers_count'],
+                    labels=pie_data.index,
+                    autopct='%1.1f%%',
+                    startangle=90,
+                    colors=sns.color_palette('pastel')
+                )
+                ax.set_title("Stars Distribution Across Repositories")
+                st.pyplot(fig)
+
+        # Language Distribution
         st.subheader("🖍️ Language Distribution")
         language_data = {}
         for repo in repos_data:
             language_url = repo['languages_url']
             language_response = requests.get(language_url).json()
             for lang, size in language_response.items():
-                if lang in language_data:
-                    language_data[lang] += size
-                else:
-                    language_data[lang] = size
+                language_data[lang] = language_data.get(lang, 0) + size
 
         if language_data:
             lang_df = pd.DataFrame(list(language_data.items()), columns=["Language", "Size"])
-            fig, ax = plt.subplots()
-            ax.pie(lang_df["Size"], labels=lang_df["Language"], autopct="%1.1f%%")
-            ax.set_title("Programming Language Distribution")
-            st.pyplot(fig)
+            graph_option_lang = st.selectbox(
+                "Select Graph Type for Language Distribution:",
+                ["Pie Chart", "Bar Chart"]
+            )
+            if graph_option_lang == "Pie Chart":
+                fig, ax = plt.subplots()
+                ax.pie(
+                    lang_df['Size'],
+                    labels=lang_df['Language'],
+                    autopct='%1.1f%%',
+                    startangle=90,
+                    colors=sns.color_palette('bright')
+                )
+                ax.set_title("Language Usage Distribution")
+                st.pyplot(fig)
+            elif graph_option_lang == "Bar Chart":
+                fig, ax = plt.subplots()
+                sns.barplot(
+                    data=lang_df,
+                    x='Size',
+                    y='Language',
+                    palette='coolwarm',
+                    ax=ax
+                )
+                ax.set_title("Language Usage by Size")
+                st.pyplot(fig)
 
-        # Community Engagement Metrics
-        st.subheader("📈 Community Engagement")
-        st.markdown(f"👥 **Followers**: {user_data['followers']} (Try reaching 50!)")
-        st.markdown(f"🤝 **Following**: {user_data['following']} (Engage with more people!)")
-        st.markdown(f"📂 **Repositories**: {len(repos_data)} (Aim for 10+!)")
+        # Activity Analysis
+        st.subheader("📅 Repository Activity Analysis")
+        repo_df = repo_df.sort_values(by='pushed_at', ascending=True)
+        st.line_chart(repo_df.set_index('pushed_at')['stargazers_count'])
 
-        # Repository Activity Trends
-        st.subheader("📅 Repository Activity")
-        activity_df = pd.DataFrame(repos_data, columns=["name", "pushed_at"])
-        activity_df["pushed_at"] = pd.to_datetime(activity_df["pushed_at"])
-        activity_df = activity_df.sort_values("pushed_at", ascending=True)
-        st.line_chart(activity_df.set_index("pushed_at")["name"])
+        # Recommendations Section
+        st.subheader("✨ Personalized Recommendations")
+        recommendations = []
+
+        # Add more dynamic recommendations
+        if not user_data.get('bio'):
+            recommendations.append("📝 Add a bio to make your profile more engaging.")
+        if user_data['followers'] < 10:
+            recommendations.append("🤝 Increase your followers by contributing to discussions.")
+        if len(repos_data) < 5:
+            recommendations.append("📂 Create more repositories to showcase your projects.")
+        recommendations.append("🌟 Pin top repositories to highlight your best work.")
+        recommendations.append("💡 Add a README.md file to each repository.")
+        recommendations.append("📄 Write clear documentation for your projects.")
+        recommendations.append("⚡ Use GitHub Actions to automate your workflows.")
+
+        for rec in recommendations:
+            st.markdown(f"- {rec}")
 
     else:
         st.error("❌ Unable to fetch data. Please check the username and try again.")
