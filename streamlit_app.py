@@ -1,20 +1,21 @@
 import streamlit as st
 import requests
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Set the page configuration
 st.set_page_config(
-    page_title="GitHub ID Improvement Platform",
+    page_title="🚀 Advanced GitHub Improvement Platform",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Title and Description
-st.title("🚀 GitHub ID Improvement Platform")
+st.title("🌟 Advanced GitHub ID Improvement Platform")
 st.markdown("""
-Welcome to the GitHub ID Improvement Platform! 🎉  
-Enter your GitHub username, and we'll analyze your profile to provide personalized recommendations to level up your GitHub game.  
-Get ready to unlock your full potential! 💪
+Welcome to the next level of GitHub analytics! 🎉  
+We'll evaluate your GitHub profile, provide actionable recommendations, and offer advanced visualizations 
+to help you stand out as a developer. Let's get started! 💻
 """)
 
 # Input: GitHub Username
@@ -35,7 +36,8 @@ if github_username:
         # Friendly Introduction
         st.subheader(f"👋 Hi, {user_data.get('name', user_data['login'])}!")
         st.markdown("""
-        We're thrilled to have you here! 🥳 Let's analyze your GitHub profile and uncover opportunities to make it even more impressive. 🚀
+        Here's a personalized analysis of your GitHub profile.  
+        Let's explore opportunities to shine brighter in the GitHub community! 🚀
         """)
 
         # Display Basic Profile Information
@@ -47,19 +49,27 @@ if github_username:
         st.markdown(f"**Following:** {user_data['following']} ✅")
         st.markdown(f"[🌐 View Profile]({user_data['html_url']})")
 
-        # Recommendations Section
-        st.subheader("✨ Personalized Recommendations for Your GitHub Profile")
+        # Profile Scoring
+        st.subheader("📊 Profile Score")
+        score = 50  # Base score
+        if user_data.get('bio'):
+            score += 10
+        if user_data['public_repos'] > 5:
+            score += 15
+        if user_data['followers'] > 20:
+            score += 10
+        if len(repos_data) > 0:
+            score += 15
+        st.metric("Your GitHub Profile Score", f"{score}/100")
 
+        # Recommendations Section
+        st.subheader("✨ Personalized Recommendations")
         recommendations = []
 
         # Check for bio
         if not user_data.get('bio'):
             recommendations.append("📝 Add a bio to your profile to make it more engaging and informative.")
-
-        # Check for profile picture
-        if user_data['avatar_url'].endswith("no_avatar.png"):
-            recommendations.append("📸 Upload a profile picture to make your account more personal.")
-
+        
         # Check for repository activity
         if len(repos_data) == 0:
             recommendations.append("📂 Start creating repositories to showcase your projects and skills.")
@@ -72,34 +82,56 @@ if github_username:
         if user_data['followers'] < 10:
             recommendations.append("🤝 Engage with the community to gain more followers. Try following people and contributing to discussions!")
 
-        # General Recommendations
+        # Additional recommendations
         recommendations.append("🌟 Pin your best repositories to highlight your skills.")
         recommendations.append("📄 Add a README.md file to your repositories to describe your projects.")
         recommendations.append("🎨 Use topics and tags to improve the discoverability of your repositories.")
         recommendations.append("💡 Contribute to open-source projects to gain visibility and experience.")
         recommendations.append("⚡ Leverage GitHub Actions to showcase automation and DevOps skills.")
-        recommendations.append("📈 Showcase projects with data visualizations or innovative tools.")
-        recommendations.append("✅ Write clear and descriptive commit messages to make your contributions professional.")
-        recommendations.append("🛠️ Participate in Hacktoberfest or other open-source events to expand your network.")
 
-        # Display Recommendations
-        st.markdown("Here's what you can do to improve your profile:")
         for rec in recommendations:
             st.markdown(f"- {rec}")
 
-        # Repository Analysis
-        st.subheader("🔍 Repository Analysis")
-        repo_df = pd.DataFrame(repos_data, columns=['name', 'stargazers_count', 'forks_count', 'html_url'])
-        if not repo_df.empty:
-            repo_df = repo_df.rename(columns={
-                'name': 'Repository Name',
-                'stargazers_count': 'Stars',
-                'forks_count': 'Forks',
-                'html_url': 'URL'
-            })
-            repo_df = repo_df.sort_values(by='Stars', ascending=False)
-            st.markdown("📊 Here's a summary of your repositories:")
-            st.dataframe(repo_df[['Repository Name', 'Stars', 'Forks']])
+        # Repository Insights
+        st.subheader("🔍 Repository Insights")
+        if repos_data:
+            repo_df = pd.DataFrame(repos_data)
+            most_starred = repo_df.loc[repo_df['stargazers_count'].idxmax()]
+            st.markdown(f"🌟 Your most popular repository is **{most_starred['name']}** with {most_starred['stargazers_count']} stars!")
+            st.markdown(f"[🔗 View Repository]({most_starred['html_url']})")
+
+        # Language Distribution Chart
+        st.subheader("🖍️ Language Distribution")
+        language_data = {}
+        for repo in repos_data:
+            language_url = repo['languages_url']
+            language_response = requests.get(language_url).json()
+            for lang, size in language_response.items():
+                if lang in language_data:
+                    language_data[lang] += size
+                else:
+                    language_data[lang] = size
+
+        if language_data:
+            lang_df = pd.DataFrame(list(language_data.items()), columns=["Language", "Size"])
+            fig, ax = plt.subplots()
+            ax.pie(lang_df["Size"], labels=lang_df["Language"], autopct="%1.1f%%")
+            ax.set_title("Programming Language Distribution")
+            st.pyplot(fig)
+
+        # Community Engagement Metrics
+        st.subheader("📈 Community Engagement")
+        st.markdown(f"👥 **Followers**: {user_data['followers']} (Try reaching 50!)")
+        st.markdown(f"🤝 **Following**: {user_data['following']} (Engage with more people!)")
+        st.markdown(f"📂 **Repositories**: {len(repos_data)} (Aim for 10+!)")
+
+        # Repository Activity Trends
+        st.subheader("📅 Repository Activity")
+        activity_df = pd.DataFrame(repos_data, columns=["name", "pushed_at"])
+        activity_df["pushed_at"] = pd.to_datetime(activity_df["pushed_at"])
+        activity_df = activity_df.sort_values("pushed_at", ascending=True)
+        st.line_chart(activity_df.set_index("pushed_at")["name"])
+
     else:
         st.error("❌ Unable to fetch data. Please check the username and try again.")
 
