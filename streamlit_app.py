@@ -1,111 +1,74 @@
 import streamlit as st
-import yfinance as yf
+import seaborn as sns
 import pandas as pd
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
-# App title
-st.title("📊 Enhanced Stock Price Dashboard")
-
-# Sidebar for user input
-st.sidebar.header("Settings")
-stock_options = {
-    "Apple (AAPL)": "AAPL",
-    "Microsoft (MSFT)": "MSFT",
-    "Tesla (TSLA)": "TSLA",
-    "Amazon (AMZN)": "AMZN",
-    "Google (GOOGL)": "GOOGL",
-    "Netflix (NFLX)": "NFLX",
-    "NVIDIA (NVDA)": "NVDA",
-}
-selected_stocks = st.sidebar.multiselect(
-    "Select Stock Ticker(s):",
-    options=stock_options.keys(),
-    default=["Apple (AAPL)"],
+# Set the page configuration
+st.set_page_config(
+    page_title="Streamlit Analytics Platform",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
-start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2022-01-01"))
-end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
 
-show_candlestick = st.sidebar.checkbox("Show Candlestick Chart", value=True)
-show_volume = st.sidebar.checkbox("Show Volume Chart", value=True)
+# Title and Description
+st.title("Streamlit Analytics Platform")
+st.markdown("""
+This is an interactive analytical platform using built-in datasets from the **Seaborn** library.
+Explore datasets, visualize trends, and gain insights in one place!
+""")
 
-# Check valid date range
-if start_date >= end_date:
-    st.error("The start date must be earlier than the end date. Please adjust the dates.")
-else:
-    if selected_stocks:
-        st.subheader("📈 Stock Data Overview")
-        for stock_name in selected_stocks:
-            ticker = stock_options[stock_name]
-            st.markdown(f"### {stock_name} ({ticker})")
-            
-            # Download stock data
-            stock_data = yf.download(ticker, start=start_date, end=end_date)
-            
-            if not stock_data.empty:
-                # Reset index to avoid multi-index issues
-                stock_data.reset_index(inplace=True)
+# Sidebar: Dataset selection
+datasets = {
+    "Iris": sns.load_dataset("iris"),
+    "Titanic": sns.load_dataset("titanic"),
+    "Tips": sns.load_dataset("tips"),
+    "Penguins": sns.load_dataset("penguins"),
+}
 
-                # Display data snapshot
-                st.write("📋 Data Snapshot:")
-                st.dataframe(stock_data.tail())
+selected_dataset_name = st.sidebar.selectbox("Select a Dataset", list(datasets.keys()))
+data = datasets[selected_dataset_name]
 
-                # Candlestick Chart
-                if show_candlestick:
-                    st.write("📊 Candlestick Chart:")
-                    fig = go.Figure(
-                        data=[
-                            go.Candlestick(
-                                x=stock_data['Date'],
-                                open=stock_data['Open'],
-                                high=stock_data['High'],
-                                low=stock_data['Low'],
-                                close=stock_data['Close'],
-                                name="Candlestick",
-                            )
-                        ]
-                    )
-                    fig.update_layout(
-                        title=f"{stock_name} Candlestick Chart",
-                        xaxis_title="Date",
-                        yaxis_title="Price",
-                        template="plotly_white",
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
+# Display dataset details
+st.subheader(f"Dataset: {selected_dataset_name}")
+st.write("### Data Preview", data.head())
+st.write("### Summary Statistics", data.describe(include='all'))
 
-                # Moving Averages
-                st.sidebar.subheader(f"{stock_name}: Moving Average")
-                ma_periods = st.sidebar.multiselect(
-                    f"Select Moving Average Periods (days) for {ticker}:",
-                    options=[10, 20, 50, 100],
-                    default=[20],
-                )
-                if ma_periods:
-                    st.write("📈 Price with Moving Averages:")
-                    stock_data_with_ma = stock_data.copy()
+# Sidebar: Visualization Options
+st.sidebar.markdown("### Visualization Settings")
+plot_type = st.sidebar.selectbox(
+    "Select Plot Type",
+    ["Scatter Plot", "Histogram", "Box Plot", "Bar Plot"]
+)
 
-                    # Calculate and plot moving averages
-                    for ma in ma_periods:
-                        stock_data_with_ma[f"MA_{ma}"] = stock_data_with_ma["Close"].rolling(window=ma).mean()
+x_axis = st.sidebar.selectbox("X-Axis", options=data.columns)
+y_axis = st.sidebar.selectbox("Y-Axis", options=data.columns)
+hue = st.sidebar.selectbox("Hue (Optional)", options=[None] + list(data.columns))
 
-                    # Display line chart with moving averages
-                    ma_columns = [f"MA_{ma}" for ma in ma_periods]
-                    st.line_chart(stock_data_with_ma.set_index("Date")[["Close"] + ma_columns])
+# Visualization
+st.subheader("Visualization")
+fig, ax = plt.subplots(figsize=(10, 6))
 
-                # Volume Chart
-                if show_volume:
-                    st.write("📊 Volume Chart:")
-                    st.bar_chart(stock_data.set_index("Date")["Volume"])
+if plot_type == "Scatter Plot":
+    sns.scatterplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
+elif plot_type == "Histogram":
+    sns.histplot(data=data, x=x_axis, hue=hue, kde=True, ax=ax)
+elif plot_type == "Box Plot":
+    sns.boxplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
+elif plot_type == "Bar Plot":
+    sns.barplot(data=data, x=x_axis, y=y_axis, hue=hue, ax=ax)
 
-                # Download CSV
-                st.write("💾 Download Data:")
-                csv = stock_data.to_csv().encode("utf-8")
-                st.download_button(
-                    label=f"Download {ticker} Data as CSV",
-                    data=csv,
-                    file_name=f"{ticker}_data.csv",
-                    mime="text/csv",
-                )
-            else:
-                st.error(f"No data found for {ticker} in the specified date range.")
-    else:
-        st.info("Please select at least one stock to view data.")
+st.pyplot(fig)
+
+# Advanced Analysis: Correlation Heatmap
+if st.checkbox("Show Correlation Heatmap"):
+    st.subheader("Correlation Heatmap")
+    corr = data.corr()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
+    st.pyplot(fig)
+
+# Footer
+st.markdown("""
+---
+Built with [Streamlit](https://streamlit.io/) and [Seaborn](https://seaborn.pydata.org/).
+""")
