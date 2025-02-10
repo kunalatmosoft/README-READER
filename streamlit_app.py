@@ -1,41 +1,64 @@
 import streamlit as st
-from langchain_community.llms import Ollama
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+from nltk.sentiment import SentimentIntensityAnalyzer
 
-# Set up Streamlit page
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
-st.title("🤖 AI Chatbot with LangChain & Ollama Qwen")
+# Download necessary datasets (run only once)
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('vader_lexicon')
 
-# Load Ollama model
-llm = Ollama(model="qwen")
+# Function for text summarization
+def summarize_text(text, num_sentences=3):
+    sentences = sent_tokenize(text)
+    words = word_tokenize(text.lower())
 
-# Set up memory for conversation history
-memory = ConversationBufferMemory()
-conversation = ConversationChain(llm=llm, memory=memory)
+    # Remove stopwords
+    stop_words = set(stopwords.words("english"))
+    filtered_words = [word for word in words if word.isalnum() and word not in stop_words]
 
-# Initialize session state for chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    # Calculate word frequency
+    freq_dist = FreqDist(filtered_words)
 
-# Display previous chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    # Score sentences based on word importance
+    sentence_scores = {sent: sum(freq_dist[word] for word in word_tokenize(sent.lower()) if word in freq_dist)
+                       for sent in sentences}
 
-# User input field
-user_input = st.chat_input("Ask me anything...")
-if user_input:
-    # Display user message
-    st.chat_message("user").markdown(user_input)
-    st.session_state.messages.append({"role": "user", "content": user_input})
+    # Select top sentences
+    summary_sentences = sorted(sentence_scores, key=sentence_scores.get, reverse=True)[:num_sentences]
+    
+    return " ".join(summary_sentences)
 
-    # Get AI response
-    response = conversation.run(user_input)
+# Function for sentiment analysis
+def analyze_sentiment(text):
+    sia = SentimentIntensityAnalyzer()
+    score = sia.polarity_scores(text)
+    
+    if score["compound"] >= 0.05:
+        return "😊 Positive"
+    elif score["compound"] <= -0.05:
+        return "😡 Negative"
+    else:
+        return "😐 Neutral"
 
-    # Display AI response
-    with st.chat_message("assistant"):
-        st.markdown(response)
+# Streamlit UI
+st.set_page_config(page_title="AI Text Processing Tool", page_icon="📜")
+st.title("📜 AI-Powered Text Summarization & Sentiment Analysis")
 
-    # Store AI response
-    st.session_state.messages.append({"role": "assistant", "content": response})
+# User input
+text_input = st.text_area("Enter your text here:", height=200)
+
+if st.button("Process Text"):
+    if text_input:
+        summary = summarize_text(text_input)
+        sentiment = analyze_sentiment(text_input)
+
+        st.subheader("📝 Summary")
+        st.write(summary)
+
+        st.subheader("📊 Sentiment Analysis")
+        st.write(sentiment)
+    else:
+        st.warning("Please enter some text to analyze.")
