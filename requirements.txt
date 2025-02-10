@@ -5,3 +5,7 @@ matplotlib
 plotly
 seaborn 
 requests
+streamlit
+langchain
+langchain_community
+ollama
