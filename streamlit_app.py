@@ -1,3 +1,10 @@
+import nltk
+
+# Download required NLTK models (Run this only once)
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('vader_lexicon')
+
 import streamlit as st
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
