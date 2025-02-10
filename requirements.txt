@@ -5,7 +5,9 @@ matplotlib
 plotly
 seaborn 
 requests
-streamlit
 langchain
 langchain_community
-ollama
+nltk
+scikit-learn
+numpy
+pandas
