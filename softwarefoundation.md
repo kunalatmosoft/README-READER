@@ -160,6 +160,12 @@ These are the most prominent and influential software foundations, previously di
     - **Key Projects**: SQLite.  
     - **Link**: [sqlite.org](https://sqlite.org/)
 
+27. **Wikimedia Foundation**
+   - **Overview**: Founded in 2003, supports Wikipedia and related projects.
+   - **Mission**: Empower people to share and access free knowledge globally.
+   - **Key Projects**: Wikipedia, MediaWiki (open-source wiki software), Wikimedia Commons.
+   - **Link**: [WM](wikimediafoundation.org)
+
 ---
 
 ### 30 Additional Foundations
